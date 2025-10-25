@@ -2,6 +2,98 @@
 
 Welcome to the comprehensive Azure Load Balancer learning guide! This repository contains everything you need to understand, configure, and deploy Azure Load Balancers effectively.
 
+# Azure Public and Private Load Balancer Setup
+
+## Prerequisites
+
+* Azure subscription
+* SSH key pair downloaded
+
+---
+
+## 🚀 Public Load Balancer Setup
+
+### 1. Create Resources
+
+* **Resource Group**: `LB`
+* **Virtual Network**: `LBVNET`
+* **Virtual Machines**: `VM1`, `VM2`
+
+  * Ubuntu Server
+  * Size: `Standard_D2s_v3`
+  * NSG Rules: `HTTP-80`, `HTTPS-443`, `SSH-22`
+
+### 2. SSH into Both VMs
+
+```bash
+cd Downloads
+chmod 400 key.pem
+ssh -i key.pem atul@20.51.112.68
+ssh -i key.pem atul@48.221.120.162
+```
+
+### 3. Install Apache on Each VM
+
+```bash
+sudo apt update
+sudo apt install apache2 -y
+sudo systemctl start apache2
+sudo systemctl enable apache2
+cd /var/www/html
+sudo rm index.html
+sudo touch index.html
+sudo nano index.html
+```
+
+* VM1 → `<h1>Webserver 1</h1>`
+* VM2 → `<h1>Webserver 2</h1>`
+
+### 4. Note Public IPs of VM1 & VM2
+
+### 5. Create Public Load Balancer
+
+* Azure Portal → **Load Balancers → Create → Standard → Public**
+
+### 6. Configure
+
+* **Frontend IP** → Create Public IP
+* **Backend Pool** → `mybackendpool` (select VM1 & VM2 via VNet)
+* **Health Probe** → `myhealthprobe` (Port `80`)
+* **Load Balancing Rule** → Port `80 → 80`
+
+### 7. Test
+
+* Open the Load Balancer Public IP in browser → traffic should switch between VM1 & VM2
+
+---
+
+## 🔒 Private Internal Load Balancer Setup
+
+### 1. Create VM3
+
+* OS: **Windows Server 2025**
+* **Login using RDP** → Open Edge/Chrome Browser
+
+### 2. Create Internal Load Balancer
+
+* Azure Portal → **Load Balancers → Create → Standard → Internal**
+
+### 3. Configure
+
+* **Frontend IP** → Create private IP allocation
+* **Backend Pool** → `mybackendpool` (select VM1 & VM2)
+* **Health Probe** → Port `80`
+* **LB Rule** → `80 → 80`
+
+### 4. Test
+
+* From VM3, browse internal **Load Balancer IP** → Should load Webserver 1 & 2
+
+---
+
+✅ **Public LB = Internet-facing access**
+✅ **Private LB = Internal VNet-only access**
+
 ## 📚 Documentation Structure
 
 ### 1. **01-THEORY.md** - Comprehensive Theory Guide
